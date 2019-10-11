@@ -22,6 +22,10 @@ func main() {
 				District: "06",
 				City:     "08",
 				Info:     "固始县"},
+			{Pro: "10102",
+				District: "",
+				City:     "",
+				Info:     "上海市"},
 			{Pro: "10118",
 				District: "01",
 				City:     "01",
@@ -45,7 +49,9 @@ func main() {
 					log.Log("明天是晴天！")
 				}
 			} else {
-				push.SendMsg(weather.GetToString(ws, w))
+				if strings.Compare(w.Info, "固始县") == 0 {
+					push.SendMsg(weather.GetToString(ws, w))
+				}
 			}
 		}
 	})

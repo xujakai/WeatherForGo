@@ -109,7 +109,7 @@ func GetWeather(inform Inform) []Weather {
 			break
 		}
 		weather.DateStr = ti
-		weather.District = inform.District
+		weather.District = inform.Info
 
 		wea := selection.Find(".wea").Text()
 		weather.WeatherRecording = wea
