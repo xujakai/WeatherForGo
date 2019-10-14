@@ -98,7 +98,7 @@ func GetRemindInfo(ws []Weather) *RemindInfo {
 	var r RemindInfo
 	a := tomorrow.GetCladRank() - today.GetCladRank()
 	if a > 0 {
-		r.CoolingInfo = "明天" + today.District + "有明显降温，降温幅度：" + float2string(tomorrow.MaxTemperature-tomorrow.MinTemperature) + "℃!"
+		r.CoolingInfo = "明天" + today.District + "有明显降温，降温幅度：" + float2string(today.MaxTemperature-tomorrow.MaxTemperature) + "℃!"
 	}
 	if a < 0 {
 	}
@@ -110,7 +110,7 @@ func GetRemindInfo(ws []Weather) *RemindInfo {
 		}
 	}
 	if strings.Compare("", flag) != 0 {
-		r.WillRainInfo = "明天" + today.District + "有" + flag + ",注意带伞"
+		r.WillRainInfo = "明天" + today.District + "有" + flag + ",注意带伞！"
 	}
 	if strings.Compare("", r.WillRainInfo) == 0 && strings.Compare("", r.CoolingInfo) == 0 {
 		return nil
