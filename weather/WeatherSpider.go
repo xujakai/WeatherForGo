@@ -57,8 +57,8 @@ func (weather Weather) GetCladRank() int {
 }
 
 func (weather Weather) ToString() string {
-	if weather.MinTemperature ==weather.MaxTemperature {
-		return weather.DateStr + "," + weather.WeatherRecording + ","  + float2string(weather.MinTemperature) + "℃," + weather.WindDirection + " " + weather.WindForce
+	if weather.MinTemperature == weather.MaxTemperature {
+		return weather.DateStr + "," + weather.WeatherRecording + "," + float2string(weather.MinTemperature) + "℃," + weather.WindDirection + " " + weather.WindForce
 	}
 	return weather.DateStr + "," + weather.WeatherRecording + "," + float2string(weather.MaxTemperature) + "/" + float2string(weather.MinTemperature) + "℃," + weather.WindDirection + " " + weather.WindForce
 }
@@ -119,13 +119,11 @@ func GetWeather(inform Inform) []Weather {
 
 		find := selection.Find(".tem")
 
-
-
 		var f = find.Find("span")
 		weather.MinTemperature = string2float(find.Find("i").Text())
-		if f.Nodes !=nil {
+		if f.Nodes != nil {
 			weather.MaxTemperature = string2float(find.Find("span").Text())
-		}else {
+		} else {
 			weather.MaxTemperature = weather.MinTemperature
 		}
 

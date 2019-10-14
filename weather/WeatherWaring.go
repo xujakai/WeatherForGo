@@ -6,6 +6,7 @@ import (
 	"../spider"
 	"encoding/json"
 	"fmt"
+	"github.com/emirpasic/gods/maps/hashmap"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pmylund/go-bloom"
 	"strconv"
@@ -25,7 +26,7 @@ func (data ResData) getWarning(pro string, district string, city string) *[]Warn
 		tmpInfo := v[1][0:strings.Index(v[1], ".")]
 		split := strings.Split(tmpInfo, "-")
 		tmpCityCode := split[0]
-		if strings.Compare(tmpCityCode, cityCode) == 0 {
+		if equ(tmpCityCode, cityCode) {
 
 			var warningStr string
 			var warningTimeStr string
@@ -39,18 +40,30 @@ func (data ResData) getWarning(pro string, district string, city string) *[]Warn
 
 			warningTimeStr = warningTimeStr[0:4] + "年" + warningTimeStr[4:6] + "月" + warningTimeStr[6:8] + "日 " + warningTimeStr[8:10] + "：" + warningTimeStr[10:12] + "：" + warningTimeStr[12:]
 			warning := Warning{City: warningCity, Url: warningUil, Time: warningTimeStr, Info: getWaringStr(warningStr)}
-			infoString := warning.getWarningInfoString()
-			if infoString == nil {
+			resData := warning.getWarningInfoString()
+			if resData == nil {
 				s := warning.getWarningInfoStringPro()
 				warning.Content = s
 			} else {
-				warning.Content = infoString
+				warning.Content = &(*resData).IssueContent
 			}
 			ws = append(ws, warning)
 		}
 	}
 	return &ws
 
+}
+
+func equ(tmpCityCode, cityCode string) bool {
+	if strings.Compare(tmpCityCode, cityCode) == 0 {
+		return true
+	}
+
+	if len(tmpCityCode) == 7 && len(cityCode) >= 7 {
+		return strings.Compare(tmpCityCode[0:7], cityCode[0:7]) == 0
+	} else {
+		return false
+	}
 }
 
 type Warning struct {
@@ -96,25 +109,47 @@ func getWeatherWarningResData() *ResData {
 }
 
 type Inform struct {
-	Pro      string
-	District string
-	City     string
-	Info     string
+	Pro      string `mapstructure:"pro"`
+	District string `mapstructure:"district"`
+	City     string `mapstructure:"city"`
+	Info     string `mapstructure:"info"`
+	Alarm    bool   `mapstructure:"alarm"`
+	Remind   bool   `mapstructure:"remind"`
+	Report   bool   `mapstructure:"report"`
 }
 
-func WarningInforms(informs []Inform, f *bloom.Filter) {
+func WarningInforms(informs []Inform, tokens []push.PushToken, f *bloom.Filter) {
 	data := getWeatherWarningResData()
 	for _, v := range informs {
 		warnings := data.getWarning(v.Pro, v.District, v.City)
+		if !v.Alarm {
+			log.Log(v.Info + "不提醒！")
+			continue
+		}
 		if warnings == nil {
 			log.Log(v.Info + "无预警信息！")
 		} else {
-			for _, warning := range *warnings {
+			m := hashmap.New()
+
+			for e := range *warnings {
+				fmt.Println((*warnings)[e])
+				if v, b := m.Get((*warnings)[e].Info); b {
+					if len(strings.Split(v.(Warning).Url, "-")[0]) < len(strings.Split((*warnings)[e].Url, "-")[0]) {
+						m.Put((*warnings)[e].Info, (*warnings)[e])
+					}
+				} else {
+					m.Put((*warnings)[e].Info, (*warnings)[e])
+				}
+			}
+			for _, warn := range m.Values() {
+				warning := warn.(Warning)
 				pushStr := "【" + warning.Info + "】" + warning.Time + " " + warning.City + "#" + *warning.Content
 				bytes := []byte(pushStr)
 				if !f.Test(bytes) {
-					push.SendMsg(pushStr)
-					f.Add(bytes)
+					for _, v := range tokens {
+						v.Push(pushStr)
+						f.Add(bytes)
+					}
 				}
 			}
 		}
@@ -145,7 +180,7 @@ func (code Warning) getWarningInfoStringPro() *string {
 	return &data[2]
 }
 
-func (code Warning) getWarningInfoString() *string {
+func (code Warning) getWarningInfoString() *WarningInfo {
 	body := spider.GetResponseBody("http://product.weather.com.cn/alarm/webdata/" + code.Url + "?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
 	bo := body[len("var alarminfo="):]
 	var data WarningInfo
@@ -153,5 +188,5 @@ func (code Warning) getWarningInfoString() *string {
 		fmt.Println("解析天气数据出错")
 		return nil
 	}
-	return &data.IssueContent
+	return &data
 }

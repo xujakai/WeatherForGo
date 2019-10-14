@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-var ddUrl = "https://oapi.dingtalk.com/robot/send?access_token=XXX"
+var ddUrl = "https://oapi.dingtalk.com/robot/send?access_token="
 
-func SendMsg(msg string) {
+func sendDdMsg(token, msg string) {
 	content := `{"msgtype": "text",
 		"text": {"content": "` + msg + `"}
 	}`
-	res, err := http.Post(ddUrl, "application/json", strings.NewReader(content))
+	res, err := http.Post(ddUrl+token, "application/json", strings.NewReader(content))
 	defer res.Body.Close()
 	if err != nil {
 		fmt.Println(err)
