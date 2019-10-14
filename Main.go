@@ -81,9 +81,9 @@ func main() {
 	}
 	c := cron.New()
 	//task.run()
-	task.alarm()
-	//c.AddFunc("0 0 9,18 * * ?", task.run)
-	//c.AddFunc("0 0,15,30,45 * * * ? ", task.alarm)
+	//task.alarm()
+	c.AddFunc("0 0 9,18 * * ?", task.run)
+	c.AddFunc("0 0,15,30,45 * * * ? ", task.alarm)
 
 	c.AddFunc("@daily", func() {
 		f.Reset()
