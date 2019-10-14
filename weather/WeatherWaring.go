@@ -1,7 +1,6 @@
 package weather
 
 import (
-	"../log"
 	"../push"
 	"../spider"
 	"encoding/json"
@@ -9,6 +8,7 @@ import (
 	"github.com/emirpasic/gods/maps/hashmap"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pmylund/go-bloom"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 	"time"
@@ -102,7 +102,7 @@ func getWeatherWarningResData() *ResData {
 
 	var data ResData
 	if err := json.Unmarshal([]byte(bo), &data); err != nil {
-		log.Log("解析天气数据出错")
+		log.Info("解析天气数据出错")
 		return nil
 	}
 	return &data
@@ -123,16 +123,14 @@ func WarningInforms(informs []Inform, tokens []push.PushToken, f *bloom.Filter) 
 	for _, v := range informs {
 		warnings := data.getWarning(v.Pro, v.District, v.City)
 		if !v.Alarm {
-			log.Log(v.Info + "不提醒！")
+			log.Info(v.Info + "不提醒！")
 			continue
 		}
 		if warnings == nil {
-			log.Log(v.Info + "无预警信息！")
+			log.Info(v.Info + "无预警信息！")
 		} else {
 			m := hashmap.New()
-
 			for e := range *warnings {
-				fmt.Println((*warnings)[e])
 				if v, b := m.Get((*warnings)[e].Info); b {
 					if len(strings.Split(v.(Warning).Url, "-")[0]) < len(strings.Split((*warnings)[e].Url, "-")[0]) {
 						m.Put((*warnings)[e].Info, (*warnings)[e])

@@ -5,6 +5,51 @@
 
 具体城市代码表请访问[中国天气网](https://www.weather.com)获取
 
+### 项目配置：
+
+项目默认读取config.yaml文件，请参照文件说明进行配置。
+
+`
+
+```
+log:
+  path: ./logs
+  fileName: log
+
+push:
+  - label: dd
+    value: xxx
+
+noti:
+  - pro: 10118 #省
+    district: 06 #市
+    city: 08 #区
+    info: 固始县 #展示标识
+    alarm: true #是否预警
+    remind: true #前一天有雨提醒时间
+    report: true #当天预报时间
+  - pro: 10102
+    district: 01
+    city:
+    info: 上海市
+    alarm: true
+    remind: true
+    report: true
+  - pro: 10118
+    district: 01
+    city: 01
+    info: 郑州市
+    alarm: true
+    remind: true
+    report: true
+```
+
+`
+
+### 未来计划：
+
+完善项目配置，以便更加灵活的使用
+
 
 ### 此项目依赖：
 
@@ -21,3 +66,7 @@
 ​    [pmylund/go-bloom](https://github.com/pmylund/go-bloom)
 
 ​    [robfig/cron](https://github.com/robfig/cron)
+
+​    [spf13/viper](https://github.com/spf13/viper)
+
+​    [fsnotify/fsnotify](https://github.com/fsnotify/fsnotify)

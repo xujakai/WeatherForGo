@@ -1,7 +1,7 @@
 log:
   path: ./logs
+  fileName: log
 
-test: 01
 push:
   - label: dd
     value: xxx

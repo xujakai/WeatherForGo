@@ -2,25 +2,20 @@ package main
 
 import (
 	"./config"
-	"./log"
 	"./push"
 	"./util"
 	"./weather"
-	"fmt"
 	"github.com/pmylund/go-bloom"
 	"github.com/robfig/cron"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
 )
 
 type Task struct {
-	LogPath *LogInfo          `mapstructure:"log"`
-	Push    *[]push.PushToken `mapstructure:"push"`
-	Info    *[]weather.Inform `mapstructure:"noti"`
-}
-
-type LogInfo struct {
-	Path string `mapstructure:"path"`
+	Log  *config.LogInfo   `mapstructure:"log"`
+	Push *[]push.PushToken `mapstructure:"push"`
+	Info *[]weather.Inform `mapstructure:"noti"`
 }
 
 var f = bloom.New(10000, 0.001)
@@ -54,9 +49,9 @@ func (task Task) run() {
 				}
 			} else {
 				if w.Remind {
-					log.Log("明天是晴天！")
+					log.Info("明天是晴天！")
 				} else {
-					log.Log("不做提醒！")
+					log.Info("不做提醒！")
 				}
 			}
 		} else {
@@ -69,12 +64,13 @@ func (task Task) run() {
 	}
 }
 
+//var log = logrus.New()
+
 func main() {
 	var task Task
 	config.GetViperUnmarshal(&task)
-	value := config.GetValue("test")
-
-	fmt.Println(value)
+	task.Log.LoggerToFile()
+	log.Info("监控程序启动！")
 	for e := range *task.Info {
 		(*task.Info)[e].District = util.Add(2, (*task.Info)[e].District)
 		(*task.Info)[e].City = util.Add(2, (*task.Info)[e].City)
@@ -89,6 +85,6 @@ func main() {
 		f.Reset()
 	})
 	c.Start()
-	log.Log("监控程序启动！")
+	log.Info("监控程序启动！")
 	select {}
 }

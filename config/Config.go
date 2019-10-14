@@ -1,8 +1,8 @@
 package config
 
 import (
-	"../log"
 	"github.com/fsnotify/fsnotify"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -32,14 +32,14 @@ func (c *Config) initConfig() error {
 func (c *Config) watchConfig() {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		log.Log("Config file changed: %s\n", e.Name)
+		log.Info("Config file changed: %s\n", e.Name)
 	})
 }
 func init() {
 	c := Config{}
 	// 初始化配置文件
 	if err := c.initConfig(); err != nil {
-		log.Log(err)
+		log.Info(err)
 	}
 	c.watchConfig()
 }

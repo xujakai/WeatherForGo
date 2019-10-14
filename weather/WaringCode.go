@@ -1,7 +1,7 @@
 package weather
 
 import (
-	"../log"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
 )
@@ -92,7 +92,7 @@ func GetRemindInfo(ws []Weather) *RemindInfo {
 		}
 	}
 	if today == nil || tomorrow == nil {
-		log.Log("无法生成提示信息！")
+		log.Info("无法生成提示信息！")
 		return nil
 	}
 	var r RemindInfo

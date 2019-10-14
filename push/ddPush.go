@@ -1,8 +1,8 @@
 package push
 
 import (
-	"../log"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -24,5 +24,5 @@ func sendDdMsg(token, msg string) {
 		fmt.Println("发送失败！")
 		return
 	}
-	log.Log(msg, string(body))
+	log.Info(msg, string(body))
 }
