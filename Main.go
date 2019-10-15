@@ -68,7 +68,6 @@ func main() {
 	var task Task
 	config.GetViperUnmarshal(&task)
 	task.Log.LoggerToFile()
-	log.Info("监控程序启动！")
 	for e := range *task.Info {
 		(*task.Info)[e].District = util.Add(2, (*task.Info)[e].District)
 		(*task.Info)[e].City = util.Add(2, (*task.Info)[e].City)
