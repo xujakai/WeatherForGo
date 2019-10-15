@@ -5,6 +5,10 @@
 
 具体城市代码表请访问[中国天气网](https://www.weather.com)获取
 
+### 推送方式：
+
+本项目目前采用钉钉机器人方式，通过申请的钉钉token发送消息。[接口文档](https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq)
+
 ### 项目配置：
 
 项目默认读取config.yaml文件，请参照文件说明进行配置。
@@ -17,7 +21,7 @@ log:
   fileName: log
 
 push:
-  - label: dd
+  - label: dd #钉钉机器人
     value: xxx
 
 noti:
@@ -26,8 +30,8 @@ noti:
     city: 08 #区
     info: 固始县 #展示标识
     alarm: true #是否预警
-    remind: true #前一天有雨提醒时间
-    report: true #当天预报时间
+    remind: true #前一天有雨提醒
+    report: true #当天预报
   - pro: 10102
     district: 01
     city:
@@ -48,7 +52,7 @@ noti:
 
 ### 未来计划：
 
-完善项目配置，以便更加灵活的使用
+完善项目配置，以便更加灵活的使用。引入更多的通知方式
 
 
 ### 此项目依赖：
