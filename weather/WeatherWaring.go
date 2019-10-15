@@ -60,7 +60,7 @@ func equ(tmpCityCode, cityCode string) bool {
 	}
 
 	if len(tmpCityCode) == 7 && len(cityCode) >= 7 {
-		return strings.Compare(tmpCityCode[0:7], cityCode[0:7]) == 0
+		return strings.Compare(tmpCityCode, cityCode[0:7]) == 0
 	} else {
 		return false
 	}

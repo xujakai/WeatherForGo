@@ -1,6 +1,6 @@
 log:
   path: ./logs
-  fileName: log
+  fileName: weather.log
 
 push:
   - label: dd
@@ -12,8 +12,8 @@ noti:
     city: 08 #区
     info: 固始县 #展示标识
     alarm: true #是否预警
-    remind: true #前一天有雨提醒时间
-    report: true #当天预报时间
+    remind: true #前一天有雨提醒
+    report: true #当天预报
   - pro: 10102
     district: 01
     city:

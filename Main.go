@@ -64,8 +64,6 @@ func (task Task) run() {
 	}
 }
 
-//var log = logrus.New()
-
 func main() {
 	var task Task
 	config.GetViperUnmarshal(&task)
