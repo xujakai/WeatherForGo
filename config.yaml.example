@@ -9,6 +9,8 @@ push:
     value:
   - label: hook
     value: https://www.topme.pro/hook
+  - label: serverChan
+    value: key
 
 noti:
   - pro: 10118 #省

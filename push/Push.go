@@ -50,6 +50,14 @@ func (token Push) Console(msg Msg) bool {
 	return true
 }
 
+func (token Push) ServerChan(msg Msg) bool {
+	scUrl := "https://sc.ftqq.com/" + token.Value + ".send"
+	content := `{"text": "` + msg.Title + `",
+		"desp":` + msg.Content + `}
+	}`
+	return spider.PostJson(scUrl, content)
+}
+
 func callReflect(any interface{}, name string, args ...interface{}) []reflect.Value {
 	inputs := make([]reflect.Value, len(args))
 	for i, _ := range args {

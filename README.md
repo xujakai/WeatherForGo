@@ -6,8 +6,20 @@
 具体城市代码表请访问[中国天气网](https://www.weather.com)获取
 
 ### 推送方式：
+serverChan方式: 申请的serverChan Key,直接推送到微信。[接口文档](https://sc.ftqq.com/)
 
-本项目目前采用钉钉机器人方式，通过申请的钉钉token发送消息。[接口文档](https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq)
+钉钉机器人方式：申请钉钉token,直接推送到钉钉。[接口文档](https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq)
+
+web hook方式：请配制hook地址。hook消息格式：
+```
+{
+   "title":"【今日天气】",
+   "content":"【今日天气】2019年10月16日天气#上海市，16日（今天）,阴转小雨,22/16℃,北风 3-4级；17日（明天）,阴转多云,22/18℃,北风转西北风 <3级；18日（后天）,多云转晴,23/18℃,北风 3-4级转<3级"
+}
+```
+console控制台：加一个label console
+
+对push中的列表会逐一调用
 
 ### 项目配置：
 
@@ -25,6 +37,8 @@ push:
     value:
   - label: hook
     value: https://www.topme.pro/hook
+  - label: serverChan
+    value: key
 
 noti:
   - pro: 10118 #省
@@ -51,15 +65,8 @@ noti:
 ```
 
 
-对push中的列表会逐一调用
 
-hook消息格式：
-```
-{
-   "title":"【今日天气】",
-   "content":"【今日天气】2019年10月16日天气#上海市，16日（今天）,阴转小雨,22/16℃,北风 3-4级；17日（明天）,阴转多云,22/18℃,北风转西北风 <3级；18日（后天）,多云转晴,23/18℃,北风 3-4级转<3级"
-}
-```
+
 
 
 
