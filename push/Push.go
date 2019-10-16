@@ -7,6 +7,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
 	"reflect"
+	"strings"
 )
 
 var funcMap = make(map[string]func(msg string))
@@ -52,10 +53,7 @@ func (token Push) Console(msg Msg) bool {
 
 func (token Push) ServerChan(msg Msg) bool {
 	scUrl := "https://sc.ftqq.com/" + token.Value + ".send"
-	content := `{"text": "` + msg.Title + `",
-		"desp":` + msg.Content + `}
-	}`
-	return spider.PostJson(scUrl, content)
+	return strings.Contains(spider.GetResponseBody(scUrl+"?text="+msg.Title+"&desp="+msg.Content), "success")
 }
 
 func callReflect(any interface{}, name string, args ...interface{}) []reflect.Value {
