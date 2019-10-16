@@ -69,13 +69,13 @@ func (task Task) remind() {
 }
 
 var (
-	help = flag.Bool("h", false, "this help！")
-	test = flag.Bool("t", false, "test run this project！")
+	help       = flag.Bool("h", false, "this help！")
+	test       = flag.Bool("t", false, "test run this project！")
+	configName = flag.String("c", "config", "config name")
 )
 
 func main() {
 	flag.Parse()
-
 	if help != nil && *help {
 		flag.Usage()
 		return
@@ -86,11 +86,11 @@ func main() {
 		info := &config.LogInfo{"./", "test.log"}
 		p := []push.Push{{Label: "console"}}
 		w := []weather.Inform{{Pro: "10102", District: "01", City: "00", Info: "上海市", Alarm: true, Remind: true, Report: true}}
-
 		var task Task
 		task.Log = info
 		task.Push = &p
 		task.Info = &w
+		task.Log.LoggerToFile()
 
 		task.weatherInfo()
 		task.remind()
@@ -99,6 +99,7 @@ func main() {
 	}
 
 	var task Task
+	config := config.NewConfigByName(*configName)
 	config.GetViperUnmarshal(&task)
 	task.Log.LoggerToFile()
 	for e := range *task.Info {

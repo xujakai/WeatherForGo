@@ -10,6 +10,15 @@ type Config struct {
 	FileName string
 }
 
+func NewConfigByName(fileName string) *Config {
+	c :=Config{FileName:fileName}
+	if err := c.initConfig(); err != nil {
+		log.Info(err)
+	}
+	c.watchConfig()
+	return &c
+}
+
 func (c *Config) initConfig() error {
 	if c.FileName != "" {
 		// 如果指定了配置文件，则解析指定的配置文件
@@ -35,23 +44,15 @@ func (c *Config) watchConfig() {
 		log.Info("Config file changed: %s\n", e.Name)
 	})
 }
-func init() {
-	c := Config{}
-	// 初始化配置文件
-	if err := c.initConfig(); err != nil {
-		log.Info(err)
-	}
-	c.watchConfig()
-}
 
-func GetValue(key string) string {
+func (c *Config)GetValue(key string) string {
 	return viper.GetString(key)
 }
 
-func GetValues(key string) []string {
+func (c *Config)GetValues(key string) []string {
 	return viper.GetStringSlice(key)
 }
 
-func GetViperUnmarshal(rawVal interface{}) error {
+func (c *Config)GetViperUnmarshal(rawVal interface{}) error {
 	return viper.Unmarshal(rawVal)
 }
