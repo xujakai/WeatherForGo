@@ -5,6 +5,8 @@ log:
 push:
   - label: dd
     value: xxx
+  - labe: console
+    value:
 
 noti:
   - pro: 10118 #省

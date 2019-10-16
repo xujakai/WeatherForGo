@@ -118,7 +118,7 @@ type Inform struct {
 	Report   bool   `mapstructure:"report"`
 }
 
-func WarningInforms(informs []Inform, tokens []push.PushToken, f *bloom.Filter) {
+func WarningInforms(informs []Inform, tokens []push.Push, f *bloom.Filter) {
 	data := getWeatherWarningResData()
 	for _, v := range informs {
 		warnings := data.getWarning(v.Pro, v.District, v.City)
