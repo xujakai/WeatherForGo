@@ -1,13 +1,12 @@
 package push
 
 import (
+	"../spider"
 	"../util"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
-	"net/http"
 	"reflect"
-	"strings"
 )
 
 var funcMap = make(map[string]func(msg string))
@@ -17,33 +16,37 @@ type Push struct {
 	Value string `mapstructure:"value"`
 }
 
+type Msg struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
 var ddUrl = "https://oapi.dingtalk.com/robot/send?access_token="
 
-func (token Push) Dd(msg string) bool {
+func (token Push) Dd(msg Msg) bool {
 	content := `{"msgtype": "text",
-		"text": {"content": "` + msg + `"}
+		"text": {"content": "` + msg.Content + `"}
 	}`
 	if token.Value == "" {
 		log.Error("dd token is empty!")
 		return false
 	}
-	res, err := http.Post(ddUrl+token.Value, "application/json", strings.NewReader(content))
-	defer res.Body.Close()
+	return spider.PostJson(ddUrl+token.Value, content)
+}
+
+var jsonIterator = jsoniter.ConfigCompatibleWithStandardLibrary
+
+func (token Push) Hook(msg Msg) bool {
+	b, err := jsonIterator.MarshalToString(msg)
 	if err != nil {
 		log.Error(err)
 		return false
 	}
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Error("发送失败！", err)
-		return false
-	}
-	log.Info(msg, string(body))
-	return true
+	return spider.PostJson(token.Value, b)
 }
 
-func (token Push) Console(msg string) bool {
-	fmt.Println(msg)
+func (token Push) Console(msg Msg) bool {
+	fmt.Println(msg.Content)
 	return true
 }
 
@@ -59,7 +62,7 @@ func callReflect(any interface{}, name string, args ...interface{}) []reflect.Va
 	}
 }
 
-func (token Push) Push(msg string) bool {
+func (token Push) Push(msg Msg) bool {
 	value := callReflect(&token, util.Capitalize(token.Label), msg)
 	if value != nil {
 		return value[0].Bool()

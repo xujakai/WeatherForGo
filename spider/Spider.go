@@ -1,8 +1,10 @@
 package spider
 
 import (
+	"bytes"
 	"fmt"
 	. "github.com/PuerkitoBio/goquery"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -46,6 +48,23 @@ func GetResponseBodyAddHeader(url string, header map[string]string) string {
 
 func GetResponseBody(url string) string {
 	return GetResponseBodyAddHeader(url, nil)
+}
+
+func PostJson(url, json string) bool {
+	buffer := bytes.NewBuffer([]byte(json))
+	request, err := http.NewRequest("POST", url, buffer)
+	if err != nil {
+		log.Error("http.NewRequest", err)
+		return false
+	}
+	request.Header.Set("Content-Type", "application/json;charset=UTF-8") //添加请求头
+	res, err := client.Do(request)
+	if err != nil {
+		log.Error("请求失败", url, json)
+		return false
+	}
+	defer res.Body.Close()
+	return res.StatusCode == 200
 }
 
 func GetHtml(url string) *Document {

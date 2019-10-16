@@ -145,7 +145,8 @@ func WarningInforms(informs []Inform, tokens []push.Push, f *bloom.Filter) {
 				bytes := []byte(pushStr)
 				if !f.Test(bytes) {
 					for _, v := range tokens {
-						v.Push(pushStr)
+						msg := push.Msg{Title: warning.Info, Content: pushStr}
+						v.Push(msg)
 						f.Add(bytes)
 					}
 				}

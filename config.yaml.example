@@ -5,8 +5,10 @@ log:
 push:
   - label: dd
     value: xxx
-  - labe: console
+  - label: console
     value:
+  - label: hook
+    value: https://www.topme.pro/hook
 
 noti:
   - pro: 10118 #省

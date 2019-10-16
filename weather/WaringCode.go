@@ -1,6 +1,7 @@
 package weather
 
 import (
+	"../push"
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
@@ -74,8 +75,7 @@ func init() {
 
 //RemindInfo 提示信息
 type RemindInfo struct {
-	CoolingInfo  string `降温信息`
-	WillRainInfo string `有雨信息`
+	Msg *[]push.Msg
 }
 
 var sts = []string{"雨", "雪"}
@@ -95,10 +95,10 @@ func GetRemindInfo(ws []Weather) *RemindInfo {
 		log.Info("无法生成提示信息！")
 		return nil
 	}
-	var r RemindInfo
+	var msg []push.Msg
 	a := tomorrow.GetCladRank() - today.GetCladRank()
 	if a > 0 {
-		r.CoolingInfo = "明天" + today.District + "有明显降温，降温幅度：" + float2string(today.MaxTemperature-tomorrow.MaxTemperature) + "℃!"
+		msg = append(msg, push.Msg{Title: "降温提醒", Content: "明天" + today.District + "有明显降温，降温幅度：" + float2string(today.MaxTemperature-tomorrow.MaxTemperature) + "℃！"})
 	}
 	if a < 0 {
 	}
@@ -110,15 +110,22 @@ func GetRemindInfo(ws []Weather) *RemindInfo {
 		}
 	}
 	if strings.Compare("", flag) != 0 {
-		r.WillRainInfo = "明天" + today.District + "有" + flag + ",注意带伞！"
+		msg = append(msg, push.Msg{Title: "有" + flag + "提醒", Content: "明天" + today.District + "有" + flag + ",注意带伞！"})
 	}
-	if strings.Compare("", r.WillRainInfo) == 0 && strings.Compare("", r.CoolingInfo) == 0 {
+	if len(msg) == 0 {
 		return nil
 	}
+	var r RemindInfo
+	r.Msg = &msg
 	return &r
 }
 
-func GetToString(ws []Weather, inform Inform) string {
+func GetToMsg(ws []Weather, inform Inform) push.Msg {
+	s := getToString(ws, inform)
+	return push.Msg{Title: "【今日天气】", Content: s}
+}
+
+func getToString(ws []Weather, inform Inform) string {
 	var msg []string
 	for _, v := range ws {
 		msg = append(msg, v.ToString())

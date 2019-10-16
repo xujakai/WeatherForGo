@@ -10,7 +10,6 @@ import (
 	"github.com/pmylund/go-bloom"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
-	"strings"
 	"time"
 )
 
@@ -37,7 +36,7 @@ func (task Task) weatherInfo() {
 		if w.Report {
 			ws := weather.GetWeather(w)
 			for _, v := range *task.Push {
-				v.Push(weather.GetToString(ws, w))
+				v.Push(weather.GetToMsg(ws, w))
 			}
 		}
 	}
@@ -49,14 +48,9 @@ func (task Task) remind() {
 			ws := weather.GetWeather(w)
 			info := weather.GetRemindInfo(ws)
 			if info != nil {
-				if strings.Compare(info.CoolingInfo, "") != 0 {
+				for e := range *info.Msg {
 					for _, v := range *task.Push {
-						v.Push(info.CoolingInfo)
-					}
-				}
-				if strings.Compare(info.WillRainInfo, "") != 0 {
-					for _, v := range *task.Push {
-						v.Push(info.WillRainInfo)
+						v.Push((*info.Msg)[e])
 					}
 				}
 			} else {
