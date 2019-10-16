@@ -19,7 +19,7 @@ web hook方式：请配制hook地址。hook消息格式：
 ```
 console控制台：加一个label console
 
-对push中的列表会逐一调用
+配制需要推送的目标，push列表会逐一推送
 
 ### 项目配置：
 
@@ -63,10 +63,6 @@ noti:
     remind: true
     report: true
 ```
-
-
-
-
 
 
 
