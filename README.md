@@ -13,16 +13,18 @@
 
 项目默认读取config.yaml文件，请参照文件说明进行配置。
 
-`
-
 ```
 log:
   path: ./logs
-  fileName: log
+  fileName: weather.log
 
 push:
-  - label: dd #钉钉机器人
+  - label: dd
     value: xxx
+  - label: console
+    value:
+  - label: hook
+    value: https://www.topme.pro/hook
 
 noti:
   - pro: 10118 #省
@@ -48,7 +50,18 @@ noti:
     report: true
 ```
 
-`
+
+对push中的列表会逐一调用
+
+hook消息格式：
+```
+{
+   "title":"【今日天气】",
+   "content":"【今日天气】2019年10月16日天气#上海市，16日（今天）,阴转小雨,22/16℃,北风 3-4级；17日（明天）,阴转多云,22/18℃,北风转西北风 <3级；18日（后天）,多云转晴,23/18℃,北风 3-4级转<3级"
+}
+```
+
+
 
 ### 未来计划：
 
