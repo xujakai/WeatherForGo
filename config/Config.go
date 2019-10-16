@@ -18,6 +18,14 @@ func NewConfigByName(fileName string) *Config {
 	c.watchConfig()
 	return &c
 }
+func NewConfig() *Config {
+	c :=Config{}
+	if err := c.initConfig(); err != nil {
+		log.Info(err)
+	}
+	c.watchConfig()
+	return &c
+}
 
 func (c *Config) initConfig() error {
 	if c.FileName != "" {

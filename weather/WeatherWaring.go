@@ -59,7 +59,7 @@ func equ(tmpCityCode, cityCode string) bool {
 		return true
 	}
 
-	if len(tmpCityCode) == 7 && len(cityCode) >= 7 {
+	if len(tmpCityCode) == 7 && len(cityCode) > 7 {
 		return strings.Compare(tmpCityCode, cityCode[0:7]) == 0
 	} else {
 		return false
@@ -121,11 +121,11 @@ type Inform struct {
 func WarningInforms(informs []Inform, tokens []push.Push, f *bloom.Filter) {
 	data := getWeatherWarningResData()
 	for _, v := range informs {
-		warnings := data.getWarning(v.Pro, v.District, v.City)
 		if !v.Alarm {
 			log.Info(v.Info + "不提醒！")
 			continue
 		}
+		warnings := data.getWarning(v.Pro, v.District, v.City)
 		if warnings == nil {
 			log.Info(v.Info + "无预警信息！")
 		} else {

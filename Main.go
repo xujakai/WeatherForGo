@@ -34,8 +34,8 @@ func (task Task) alarm() {
 
 func (task Task) weatherInfo() {
 	for _, w := range *task.Info {
-		ws := weather.GetWeather(w)
 		if w.Report {
+			ws := weather.GetWeather(w)
 			for _, v := range *task.Push {
 				v.Push(weather.GetToString(ws, w))
 			}
@@ -45,33 +45,34 @@ func (task Task) weatherInfo() {
 
 func (task Task) remind() {
 	for _, w := range *task.Info {
-		ws := weather.GetWeather(w)
-		info := weather.GetRemindInfo(ws)
-		if info != nil && w.Remind {
-			if strings.Compare(info.CoolingInfo, "") != 0 {
-				for _, v := range *task.Push {
-					v.Push(info.CoolingInfo)
+		if w.Remind {
+			ws := weather.GetWeather(w)
+			info := weather.GetRemindInfo(ws)
+			if info != nil {
+				if strings.Compare(info.CoolingInfo, "") != 0 {
+					for _, v := range *task.Push {
+						v.Push(info.CoolingInfo)
+					}
 				}
-			}
-			if strings.Compare(info.WillRainInfo, "") != 0 {
-				for _, v := range *task.Push {
-					v.Push(info.WillRainInfo)
+				if strings.Compare(info.WillRainInfo, "") != 0 {
+					for _, v := range *task.Push {
+						v.Push(info.WillRainInfo)
+					}
 				}
+			} else {
+				log.Info(w.Info, "明天是晴天！")
 			}
 		} else {
-			if w.Remind {
-				log.Info("明天是晴天！")
-			} else {
-				log.Info("不做提醒！")
-			}
+			log.Info(w.Info, "不做提醒！")
 		}
+
 	}
 }
 
 var (
 	help       = flag.Bool("h", false, "this help！")
-	test       = flag.Bool("t", false, "test run this project！")
-	configName = flag.String("c", "config", "config name")
+	test       = flag.Bool("t", false, "test run this project")
+	configName = flag.String("c", "config.yaml", "config name")
 )
 
 func main() {
@@ -80,13 +81,13 @@ func main() {
 		flag.Usage()
 		return
 	}
+	var task Task
 
 	if test != nil && *test {
 		fmt.Println("run test")
 		info := &config.LogInfo{"./", "test.log"}
 		p := []push.Push{{Label: "console"}}
 		w := []weather.Inform{{Pro: "10102", District: "01", City: "00", Info: "上海市", Alarm: true, Remind: true, Report: true}}
-		var task Task
 		task.Log = info
 		task.Push = &p
 		task.Info = &w
@@ -98,7 +99,6 @@ func main() {
 		return
 	}
 
-	var task Task
 	config := config.NewConfigByName(*configName)
 	config.GetViperUnmarshal(&task)
 	task.Log.LoggerToFile()
