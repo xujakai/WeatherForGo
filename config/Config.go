@@ -4,6 +4,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"os"
 )
 
 type Config struct {
@@ -11,17 +12,19 @@ type Config struct {
 }
 
 func NewConfigByName(fileName string) *Config {
-	c :=Config{FileName:fileName}
+	c := Config{FileName: fileName}
 	if err := c.initConfig(); err != nil {
 		log.Info(err)
+		os.Exit(-1)
 	}
 	c.watchConfig()
 	return &c
 }
 func NewConfig() *Config {
-	c :=Config{}
+	c := Config{}
 	if err := c.initConfig(); err != nil {
 		log.Info(err)
+		os.Exit(-1)
 	}
 	c.watchConfig()
 	return &c
@@ -53,14 +56,14 @@ func (c *Config) watchConfig() {
 	})
 }
 
-func (c *Config)GetValue(key string) string {
+func (c *Config) GetValue(key string) string {
 	return viper.GetString(key)
 }
 
-func (c *Config)GetValues(key string) []string {
+func (c *Config) GetValues(key string) []string {
 	return viper.GetStringSlice(key)
 }
 
-func (c *Config)GetViperUnmarshal(rawVal interface{}) error {
+func (c *Config) GetViperUnmarshal(rawVal interface{}) error {
 	return viper.Unmarshal(rawVal)
 }
