@@ -159,7 +159,15 @@ func main() {
 	config.WatchConfig(func() {
 		var tmpTask Task
 		config.GetViperUnmarshal(&tmpTask)
-		task = tmpTask
+		task.Push = tmpTask.Push
+		task.Info = tmpTask.Info
+		task.Log = tmpTask.Log
+
+		task.Log.LoggerToFile()
+		for e := range *task.Info {
+			(*task.Info)[e].District = util.Add(2, (*task.Info)[e].District)
+			(*task.Info)[e].City = util.Add(2, (*task.Info)[e].City)
+		}
 	})
 	task.Log.LoggerToFile()
 	for e := range *task.Info {
