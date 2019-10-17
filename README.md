@@ -3,7 +3,25 @@
 
 
 
-具体城市代码表请访问[中国天气网](https://www.weather.com)获取
+~~具体城市代码表请访问[中国天气网](https://www.weather.com)获取~~
+
+请用 -q 查询地区代码
+
+```
+./WeatherFoGo -q 河南信阳固始
+省：10118 市：06 县区：08
+
+./WeatherFoGo -q 河南省信阳市固始县
+省：10118 市：06 县区：08
+
+./WeatherFoGo -q 河南信阳固始
+省：10118 市：06 县区：01
+
+./WeatherFoGo -q 上海市
+省：10102 市：00 县区：01
+```
+
+
 
 ### 推送方式：
 serverChan方式: 申请的serverChan Key,直接推送到微信。[接口文档](https://sc.ftqq.com/)
@@ -49,8 +67,8 @@ noti:
     remind: true #前一天有雨提醒
     report: true #当天预报
   - pro: 10102
-    district: 01
-    city:
+    district: 00
+    city: 01
     info: 上海市
     alarm: true
     remind: true

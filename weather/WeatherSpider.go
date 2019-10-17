@@ -143,7 +143,11 @@ func GetWeather(inform Inform) []Weather {
 }
 
 func getUrl(inform Inform) string {
-	return "http://www.weather.com.cn/weather/" + inform.Pro + inform.District + inform.City + ".shtml"
+	if inform.District == "00" {
+		return "http://www.weather.com.cn/weather/" + inform.Pro + inform.City + "00.shtml"
+	} else {
+		return "http://www.weather.com.cn/weather/" + inform.Pro + inform.District + inform.City + ".shtml"
+	}
 }
 
 /**

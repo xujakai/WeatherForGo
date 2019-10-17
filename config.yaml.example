@@ -21,8 +21,8 @@ noti:
     remind: true #前一天有雨提醒
     report: true #当天预报
   - pro: 10102
-    district: 01
-    city:
+    district: 00
+    city: 01
     info: 上海市
     alarm: true
     remind: true

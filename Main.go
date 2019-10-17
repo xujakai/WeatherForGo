@@ -3,13 +3,18 @@ package main
 import (
 	"./config"
 	"./push"
+	"./spider"
 	"./util"
 	"./weather"
+	"encoding/json"
 	"flag"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/pmylund/go-bloom"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -67,12 +72,68 @@ var (
 	help       = flag.Bool("h", false, "this help！")
 	test       = flag.Bool("t", false, "test run this project")
 	configName = flag.String("c", "config.yaml", "config name")
+	query      = flag.String("q", "", "query city code")
 )
+
+var jsonIterator = jsoniter.ConfigCompatibleWithStandardLibrary
+
+func getMap(url string) *map[string]string {
+	codeMap := make(map[string]string)
+	body := spider.GetResponseBody(url)
+	if err := json.Unmarshal([]byte(body), &codeMap); err != nil {
+		fmt.Println(url, "解析数据出错:", body)
+		return nil
+	}
+	return &codeMap
+}
+
+func codeCompare(codeMap map[string]string, query string) (code, value *string) {
+	for k, v := range codeMap {
+		if strings.Contains(query, v) {
+			return &k, &v
+		}
+	}
+	return nil, nil
+}
+
+func stringCompare(all, this string, codeMap map[string]string) (code, value, query *string) {
+	if codeMap == nil {
+		return nil, nil, nil
+	}
+	if this != "" {
+		p := all[strings.Index(all, this):]
+		code, value = codeCompare(codeMap, p)
+		if code != nil {
+			return code, value, &p
+		}
+	}
+	code, value = codeCompare(codeMap, all)
+	return code, value, &all
+}
 
 func main() {
 	flag.Parse()
 	if help != nil && *help {
 		flag.Usage()
+		return
+	}
+	if query != nil && *query != "" {
+		m1 := getMap("http://www.weather.com.cn/data/city3jdata/china.html?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
+		if m1 == nil {
+			return
+		}
+		c1, v1, q1 := stringCompare(*query, "", *m1)
+		if c1 == nil {
+			return
+		}
+		m2 := getMap("http://www.weather.com.cn/data/city3jdata/provshi/" + *c1 + ".html?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
+		c2, v2, q2 := stringCompare(*q1, *v1, *m2)
+		if c2 == nil {
+			return
+		}
+		m3 := getMap("http://www.weather.com.cn/data/city3jdata/station/" + *c1 + *c2 + ".html?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
+		c3, _, _ := stringCompare(*q2, *v2, *m3)
+		fmt.Printf("省：%s 市：%s 县区：%s", *c1, *c2, *c3)
 		return
 	}
 	var task Task
