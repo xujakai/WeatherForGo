@@ -14,7 +14,7 @@
 ./WeatherFoGo -q 河南省信阳市固始县
 省：10118 市：06 县区：08
 
-./WeatherFoGo -q 河南信阳固始
+./WeatherFoGo -q 河南信阳
 省：10118 市：06 县区：01
 
 ./WeatherFoGo -q 上海市
