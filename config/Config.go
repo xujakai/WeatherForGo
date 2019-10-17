@@ -17,7 +17,6 @@ func NewConfigByName(fileName string) *Config {
 		log.Info(err)
 		os.Exit(-1)
 	}
-	c.watchConfig()
 	return &c
 }
 func NewConfig() *Config {
@@ -26,7 +25,6 @@ func NewConfig() *Config {
 		log.Info(err)
 		os.Exit(-1)
 	}
-	c.watchConfig()
 	return &c
 }
 
@@ -49,10 +47,11 @@ func (c *Config) initConfig() error {
 }
 
 // 监听配置文件是否改变,用于热更新
-func (c *Config) watchConfig() {
+func (c *Config) WatchConfig(f func()) {
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		log.Info("Config file changed: %s\n", e.Name)
+		log.Info("Config file changed: ", e.Name)
+		f()
 	})
 }
 

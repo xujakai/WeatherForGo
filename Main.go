@@ -95,6 +95,11 @@ func main() {
 
 	config := config.NewConfigByName(*configName)
 	config.GetViperUnmarshal(&task)
+	config.WatchConfig(func() {
+		var tmpTask Task
+		config.GetViperUnmarshal(&tmpTask)
+		task = tmpTask
+	})
 	task.Log.LoggerToFile()
 	for e := range *task.Info {
 		(*task.Info)[e].District = util.Add(2, (*task.Info)[e].District)
