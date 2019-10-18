@@ -6,6 +6,7 @@ import (
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
+	"net/url"
 	"reflect"
 	"strings"
 )
@@ -53,7 +54,7 @@ func (token Push) Console(msg Msg) bool {
 
 func (token Push) ServerChan(msg Msg) bool {
 	scUrl := "https://sc.ftqq.com/" + token.Value + ".send"
-	return strings.Contains(spider.GetResponseBody(scUrl+"?text="+msg.Title+"&desp="+msg.Content), "success")
+	return strings.Contains(spider.GetResponseBody(scUrl+"?text="+url.QueryEscape(msg.Title)+"&desp="+url.QueryEscape(msg.Content)), "success")
 }
 
 func callReflect(any interface{}, name string, args ...interface{}) []reflect.Value {

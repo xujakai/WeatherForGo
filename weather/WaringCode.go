@@ -127,6 +127,10 @@ func GetToMsg(ws []Weather, inform Inform) push.Msg {
 
 func getToString(ws []Weather, inform Inform) string {
 	var msg []string
+	if ws == nil {
+		log.Error(inform.Info, "weather is null！")
+		return ""
+	}
 	for _, v := range ws {
 		msg = append(msg, v.ToString())
 	}

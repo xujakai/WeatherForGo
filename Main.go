@@ -111,6 +111,34 @@ func stringCompare(all, this string, codeMap map[string]string) (code, value, qu
 	return code, value, &all
 }
 
+type MyCron struct {
+	c *cron.Cron
+}
+
+func (c *MyCron) reload(task Task) bool {
+	if c.c != nil {
+		c.c.Stop()
+	}
+	c.c = cron.New()
+	c.c.AddFunc("0 0 9 * * ?", task.weatherInfo)
+	c.c.AddFunc("0 0 18 * * ?", task.remind)
+	c.c.AddFunc("0 0,15,30,45 * * * ? ", task.alarm)
+
+	c.c.AddFunc("@daily", func() {
+		f.Reset()
+	})
+	c.c.Start()
+	return true
+}
+
+func readTask(config *config.Config, task *Task) {
+	config.GetViperUnmarshal(task)
+	for e := range *task.Info {
+		(*task.Info)[e].District = util.Add(2, (*task.Info)[e].District)
+		(*task.Info)[e].City = util.Add(2, (*task.Info)[e].City)
+	}
+}
+
 func main() {
 	flag.Parse()
 	if help != nil && *help {
@@ -136,54 +164,29 @@ func main() {
 		fmt.Printf("省：%s 市：%s 县区：%s", *c1, *c2, *c3)
 		return
 	}
+
+	var myCron MyCron
 	var task Task
+	config := config.NewConfigByName(*configName)
+	readTask(config, &task)
+	task.Log.LoggerToFile()
 
 	if test != nil && *test {
 		fmt.Println("run test")
-		info := &config.LogInfo{"./", "test.log"}
-		p := []push.Push{{Label: "console"}}
-		w := []weather.Inform{{Pro: "10102", District: "01", City: "00", Info: "上海市", Alarm: true, Remind: true, Report: true}}
-		task.Log = info
-		task.Push = &p
-		task.Info = &w
 		task.Log.LoggerToFile()
-
 		task.weatherInfo()
 		task.remind()
 		task.alarm()
 		return
 	}
-
-	config := config.NewConfigByName(*configName)
-	config.GetViperUnmarshal(&task)
 	config.WatchConfig(func() {
 		var tmpTask Task
-		config.GetViperUnmarshal(&tmpTask)
-		task.Push = tmpTask.Push
-		task.Info = tmpTask.Info
-		task.Log = tmpTask.Log
-
-		task.Log.LoggerToFile()
-		for e := range *task.Info {
-			(*task.Info)[e].District = util.Add(2, (*task.Info)[e].District)
-			(*task.Info)[e].City = util.Add(2, (*task.Info)[e].City)
-		}
+		readTask(config, &tmpTask)
+		tmpTask.Log.LoggerToFile()
+		myCron.reload(tmpTask)
+		log.Info("配置文件更新成功！")
 	})
-	task.Log.LoggerToFile()
-	for e := range *task.Info {
-		(*task.Info)[e].District = util.Add(2, (*task.Info)[e].District)
-		(*task.Info)[e].City = util.Add(2, (*task.Info)[e].City)
-	}
-	c := cron.New()
-
-	c.AddFunc("0 0 9 * * ?", task.weatherInfo)
-	c.AddFunc("0 0 18 * * ?", task.remind)
-	c.AddFunc("0 0,15,30,45 * * * ? ", task.alarm)
-
-	c.AddFunc("@daily", func() {
-		f.Reset()
-	})
-	c.Start()
+	myCron.reload(task)
 	log.Info("监控程序启动！")
 	select {}
 }
