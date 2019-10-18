@@ -8,16 +8,16 @@
 请用 -q 查询地区代码
 
 ```
-./WeatherFoGo -q 河南信阳固始
+./WeatherForGo -q 河南信阳固始
 省：10118 市：06 县区：08
 
-./WeatherFoGo -q 河南省信阳市固始县
+./WeatherForGo -q 河南省信阳市固始县
 省：10118 市：06 县区：08
 
-./WeatherFoGo -q 河南信阳
+./WeatherForGo -q 河南信阳
 省：10118 市：06 县区：01
 
-./WeatherFoGo -q 上海市
+./WeatherForGo -q 上海市
 省：10102 市：00 县区：01
 ```
 
@@ -41,7 +41,7 @@ console控制台：加一个label console
 
 ### 项目配置：
 
-项目默认读取config.yaml文件，请参照文件说明进行配置。
+项目默认读取config.yaml文件，请参照文件说明进行配置。本项目支持热更新，可直接修改配制文件
 
 ```
 log:
