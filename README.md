@@ -91,20 +91,18 @@ noti:
 
 ### 此项目依赖：
 
-​    [patrickmn/go-bloom](https://github.com/patrickmn/go-bloom)
+​    [fsnotify/fsnotify](https://github.com/fsnotify/fsnotify)
+
+​    [sirupsen/logrus](https://github.com/sirupsen/logrus)
+
+​    [spf13/viper](https://github.com/spf13/viper)
 
 ​    [json-iterator/go](https://github.com/json-iterator/go)
 
 ​    [PuerkitoBio/goquery](https://github.com/PuerkitoBio/goquery)
 
-​    [natefinch/lumberjack](https://github.com/natefinch/lumberjack)
-
-​    [uber-go/zap](https://github.com/uber-go/zap)
+​    [emirpasic/gods](https://github.com/emirpasic/gods)
 
 ​    [pmylund/go-bloom](https://github.com/pmylund/go-bloom)
 
 ​    [robfig/cron](https://github.com/robfig/cron)
-
-​    [spf13/viper](https://github.com/spf13/viper)
-
-​    [fsnotify/fsnotify](https://github.com/fsnotify/fsnotify)
