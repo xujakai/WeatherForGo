@@ -10,7 +10,6 @@ import (
 	"flag"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/pmylund/go-bloom"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
 	"strconv"
@@ -24,7 +23,7 @@ type Task struct {
 	Info *[]weather.Inform `mapstructure:"noti"`
 }
 
-var f = bloom.New(10000, 0.001)
+var m = util.NewFilter()
 
 var sts = []string{"雨", "雪"}
 
@@ -33,7 +32,7 @@ func (task Task) alarm() {
 	if hour < 6 || hour > 22 {
 		return
 	}
-	weather.WarningInforms(*task.Info, *task.Push, f)
+	weather.WarningInforms(*task.Info, *task.Push, m)
 }
 
 func (task Task) weatherInfo() {
@@ -70,9 +69,10 @@ func (task Task) remind() {
 
 var (
 	help       = flag.Bool("h", false, "this help！")
-	test       = flag.Bool("t", false, "test run this project")
-	configName = flag.String("c", "config.yaml", "config name")
-	query      = flag.String("q", "", "query city code")
+	test       = flag.Bool("t", false, "test this config.")
+	configName = flag.String("c", "config.yaml", "set config name. default config name is config.yaml")
+	query      = flag.String("q", "", "query area code")
+	//areaCode   = flag.String("area-code", "", "area code, PS. 101020001")
 )
 
 var jsonIterator = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -124,8 +124,8 @@ func (c *MyCron) reload(task Task) bool {
 	c.c.AddFunc("0 0 18 * * ?", task.remind)
 	c.c.AddFunc("0 0,15,30,45 * * * ? ", task.alarm)
 
-	c.c.AddFunc("@daily", func() {
-		f.Reset()
+	c.c.AddFunc("0 0 0 L * ? ", func() {
+		m.Reset()
 	})
 	c.c.Start()
 	return true
@@ -139,6 +139,25 @@ func readTask(config *config.Config, task *Task) {
 	}
 }
 
+func queryCode(query *string) {
+	m1 := getMap("http://www.weather.com.cn/data/city3jdata/china.html?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
+	if m1 == nil {
+		return
+	}
+	c1, v1, q1 := stringCompare(*query, "", *m1)
+	if c1 == nil {
+		return
+	}
+	m2 := getMap("http://www.weather.com.cn/data/city3jdata/provshi/" + *c1 + ".html?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
+	c2, v2, q2 := stringCompare(*q1, *v1, *m2)
+	if c2 == nil {
+		return
+	}
+	m3 := getMap("http://www.weather.com.cn/data/city3jdata/station/" + *c1 + *c2 + ".html?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
+	c3, _, _ := stringCompare(*q2, *v2, *m3)
+	fmt.Printf("省：%s 市：%s 县区：%s", *c1, *c2, *c3)
+}
+
 func main() {
 	flag.Parse()
 	if help != nil && *help {
@@ -146,22 +165,7 @@ func main() {
 		return
 	}
 	if query != nil && *query != "" {
-		m1 := getMap("http://www.weather.com.cn/data/city3jdata/china.html?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
-		if m1 == nil {
-			return
-		}
-		c1, v1, q1 := stringCompare(*query, "", *m1)
-		if c1 == nil {
-			return
-		}
-		m2 := getMap("http://www.weather.com.cn/data/city3jdata/provshi/" + *c1 + ".html?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
-		c2, v2, q2 := stringCompare(*q1, *v1, *m2)
-		if c2 == nil {
-			return
-		}
-		m3 := getMap("http://www.weather.com.cn/data/city3jdata/station/" + *c1 + *c2 + ".html?_=" + strconv.FormatInt(time.Now().Unix(), 10) + "667")
-		c3, _, _ := stringCompare(*q2, *v2, *m3)
-		fmt.Printf("省：%s 市：%s 县区：%s", *c1, *c2, *c3)
+		queryCode(query)
 		return
 	}
 
@@ -172,13 +176,14 @@ func main() {
 	task.Log.LoggerToFile()
 
 	if test != nil && *test {
-		fmt.Println("run test")
 		task.Log.LoggerToFile()
 		task.weatherInfo()
 		task.remind()
 		task.alarm()
+		fmt.Println("test succeed! ")
 		return
 	}
+
 	config.WatchConfig(func() {
 		var tmpTask Task
 		readTask(config, &tmpTask)

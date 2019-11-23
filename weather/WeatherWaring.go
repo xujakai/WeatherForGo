@@ -3,11 +3,11 @@ package weather
 import (
 	"../push"
 	"../spider"
+	"../util"
 	"encoding/json"
 	"fmt"
 	"github.com/emirpasic/gods/maps/hashmap"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/pmylund/go-bloom"
 	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -21,12 +21,26 @@ type ResData struct {
 
 func (data ResData) getWarning(pro string, district string, city string) *[]Warning {
 	var ws []Warning
-	cityCode := pro + district + city
+
+	if district == "00" {
+		//直辖市
+		ws = data.getDetailWarnings(pro+district+ city, ws)
+		ws = data.getDetailWarnings(pro+district, ws)
+		ws = data.getDetailWarnings(pro, ws)
+	} else {
+		ws = data.getDetailWarnings(pro+district+ city, ws)
+		ws = data.getDetailWarnings(pro+district, ws)
+	}
+	return &ws
+
+}
+
+func (data ResData) getDetailWarnings(eqCode string, ws []Warning) []Warning {
 	for _, v := range data.DataArray {
 		tmpInfo := v[1][0:strings.Index(v[1], ".")]
 		split := strings.Split(tmpInfo, "-")
 		tmpCityCode := split[0]
-		if equ(tmpCityCode, cityCode) {
+		if eqCode == tmpCityCode {
 
 			var warningStr string
 			var warningTimeStr string
@@ -50,19 +64,30 @@ func (data ResData) getWarning(pro string, district string, city string) *[]Warn
 			ws = append(ws, warning)
 		}
 	}
-	return &ws
-
+	return ws
 }
 
-func equ(tmpCityCode, cityCode string) bool {
+func equ(tmpCityCode, pro string, district string, city string) bool {
+	cityCode := pro + district + city
 	if strings.Compare(tmpCityCode, cityCode) == 0 {
 		return true
 	}
-
-	if len(tmpCityCode) == 7 && len(cityCode) > 7 {
-		return strings.Compare(tmpCityCode, cityCode[0:7]) == 0
-	} else {
+	if strings.Compare(pro, tmpCityCode[0:5]) != 0 {
 		return false
+	}
+	//直轄市
+	if district == "00" {
+		if city == "01" {
+			return true
+		}
+		cityCode = pro + city
+		return strings.Compare(tmpCityCode, cityCode) == 0
+	} else {
+		if len(tmpCityCode) == 7 && len(cityCode) > 7 {
+			return strings.Compare(tmpCityCode, cityCode[0:7]) == 0
+		} else {
+			return false
+		}
 	}
 }
 
@@ -118,7 +143,7 @@ type Inform struct {
 	Report   bool   `mapstructure:"report"`
 }
 
-func WarningInforms(informs []Inform, tokens []push.Push, f *bloom.Filter) {
+func WarningInforms(informs []Inform, tokens []push.Push, f util.IFilter) {
 	data := getWeatherWarningResData()
 	for _, v := range informs {
 		if !v.Alarm {
@@ -142,12 +167,11 @@ func WarningInforms(informs []Inform, tokens []push.Push, f *bloom.Filter) {
 			for _, warn := range m.Values() {
 				warning := warn.(Warning)
 				pushStr := "【" + warning.Info + "】" + warning.Time + " " + warning.City + "#" + *warning.Content
-				bytes := []byte(pushStr)
-				if !f.Test(bytes) {
+				if !f.Test(pushStr) {
 					for _, v := range tokens {
 						msg := push.Msg{Title: warning.Info, Content: pushStr}
 						v.Push(msg)
-						f.Add(bytes)
+						f.Add(pushStr)
 					}
 				}
 			}
