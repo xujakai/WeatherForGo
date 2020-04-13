@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/url"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -53,6 +54,13 @@ func (token Push) Console(msg Msg) bool {
 }
 
 func (token Push) ServerChan(msg Msg) bool {
+	scUrl := "https://sc.ftqq.com/" + token.Value + ".send"
+	return strings.Contains(spider.GetResponseBody(scUrl+"?text="+url.QueryEscape(msg.Title)+"&desp="+url.QueryEscape(msg.Content)), "success")
+}
+
+var myExp=regexp.MustCompile(`^(.*?)#(?P<city>.*?)气象台(?P<time>.*?)发布(?P<title>.*?)预警信号(?P<content>.*?)注意防范(.*?)$`)
+
+func (token Push) Message(msg Msg) bool {
 	scUrl := "https://sc.ftqq.com/" + token.Value + ".send"
 	return strings.Contains(spider.GetResponseBody(scUrl+"?text="+url.QueryEscape(msg.Title)+"&desp="+url.QueryEscape(msg.Content)), "success")
 }
